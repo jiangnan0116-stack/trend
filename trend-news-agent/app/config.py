@@ -12,6 +12,13 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "trend-news-agent"
     DATABASE_URL: str = "postgresql+psycopg2://postgres:postgres@localhost:5432/trend_news_agent"
     OPENAI_API_KEY: str = "replace-me"
+    GLM_API_KEY: str = "replace-me"
+    KIMI_API_KEY: str = "replace-me"
+    MINIMAX_API_KEY: str = "replace-me"
+    QWEN_API_KEY: str = "replace-me"
+
+    LLM_PROVIDER: str = "openai"
+    LLM_MODEL: str = ""
 
     RSS_SOURCES: dict[str, str] = {
         "TechCrunch": "https://techcrunch.com/feed/",

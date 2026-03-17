@@ -3,15 +3,15 @@ from __future__ import annotations
 
 import json
 
-from openai import OpenAI
 from sqlalchemy import select
 
-from app.config import settings
 from clustering.event_clusterer import upsert_clustered_event
 from database.db import SessionLocal
 from database.models import NewsRaw
+from llm.providers import get_llm_client, get_llm_model
 
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
+client = get_llm_client()
+model = get_llm_model()
 
 PROMPT = """Extract structured event information from the news article.
 Return JSON with fields:
@@ -28,7 +28,7 @@ Only return valid JSON."""
 def extract_event(title: str, first_paragraph: str) -> dict:
     """Call OpenAI API to extract event structure from article snippet."""
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=model,
         temperature=0,
         response_format={"type": "json_object"},
         messages=[

@@ -14,7 +14,7 @@ Core stack:
 - PostgreSQL + SQLAlchemy ORM
 - feedparser
 - newspaper3k
-- OpenAI API
+- OpenAI-compatible LLM APIs (OpenAI / GLM / Kimi / MiniMax / Qwen)
 - APScheduler
 
 ## Project structure
@@ -65,7 +65,17 @@ pip install -r requirements.txt
 
 ```bash
 DATABASE_URL=postgresql+psycopg2://postgres:postgres@localhost:5432/trend_news_agent
+
+# LLM provider selection
+LLM_PROVIDER=openai  # openai | glm | kimi | minimax | qwen
+LLM_MODEL=           # optional, empty = provider default model
+
+# Provider keys (configure the one you use)
 OPENAI_API_KEY=your-openai-key
+GLM_API_KEY=your-glm-key
+KIMI_API_KEY=your-kimi-key
+MINIMAX_API_KEY=your-minimax-key
+QWEN_API_KEY=your-qwen-key
 ```
 
 4. Initialize database and seed initial keywords:
