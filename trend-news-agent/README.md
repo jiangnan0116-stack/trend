@@ -64,7 +64,7 @@ pip install -r requirements.txt
 3. Configure environment variables (or `.env` file):
 
 ```bash
-DATABASE_URL=postgresql+psycopg2://postgres:postgres@localhost:5432/trend_news_agent
+DATABASE_URL=mysql+pymysql://root:root@localhost:3306/trend_news_agent
 
 # LLM provider selection
 LLM_PROVIDER=openai  # openai | glm | kimi | minimax | qwen

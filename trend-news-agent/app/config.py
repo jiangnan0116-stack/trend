@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     PROJECT_NAME: str = "trend-news-agent"
-    DATABASE_URL: str = "postgresql+psycopg2://postgres:postgres@localhost:5432/trend_news_agent"
+    DATABASE_URL: str = "mysql+pymysql://root:root@localhost:3306/trend_news_agent"
     OPENAI_API_KEY: str = "replace-me"
     GLM_API_KEY: str = "replace-me"
     KIMI_API_KEY: str = "replace-me"
