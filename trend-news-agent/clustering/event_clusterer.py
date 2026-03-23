@@ -3,21 +3,22 @@ from __future__ import annotations
 
 import json
 import math
+from datetime import datetime, timedelta
 from typing import Sequence
 
-from openai import OpenAI
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.config import settings
 from database.models import Event, EventSource, NewsRaw
+from llm.providers import get_llm_client
 
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
+embedding_client = get_llm_client()
 
 
 def generate_embedding(text: str) -> list[float]:
     """Generate embedding vector for event summary."""
-    resp = client.embeddings.create(model="text-embedding-3-small", input=text)
+    resp = embedding_client.embeddings.create(model="text-embedding-3-small", input=text)
     return resp.data[0].embedding
 
 
@@ -33,7 +34,11 @@ def cosine_similarity(vec1: Sequence[float], vec2: Sequence[float]) -> float:
 def upsert_clustered_event(db: Session, event_payload: dict, news: NewsRaw) -> Event:
     """Merge into similar event or create a new event with source mapping."""
     new_embedding = generate_embedding(event_payload["summary"])
-    existing_events = db.execute(select(Event)).scalars().all()
+
+    one_day_ago = datetime.utcnow() - timedelta(days=1)
+    existing_events = db.execute(
+        select(Event).where(Event.first_seen >= one_day_ago)
+    ).scalars().all()
 
     best_match = None
     best_score = 0.0

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import logging
 
 from sqlalchemy import select
 
@@ -9,6 +10,8 @@ from clustering.event_clusterer import upsert_clustered_event
 from database.db import SessionLocal
 from database.models import NewsRaw
 from llm.providers import get_llm_client, get_llm_model
+
+logger = logging.getLogger(__name__)
 
 client = get_llm_client()
 model = get_llm_model()
@@ -57,7 +60,8 @@ def extract_events_from_news(limit: int = 50) -> int:
                 payload = extract_event(news.title, first_paragraph)
                 upsert_clustered_event(db, payload, news)
                 processed += 1
-            except Exception:
+            except Exception as e:
+                logger.error("Failed to extract event for news %s: %s", news.id, str(e))
                 continue
 
         db.commit()

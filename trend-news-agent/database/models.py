@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import Date, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -17,12 +18,12 @@ class NewsRaw(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     # URL 唯一，避免同一新闻重复入库。
-    url: Mapped[str] = mapped_column(String(1024), unique=True, nullable=False, index=True)
+    url: Mapped[str] = mapped_column(String(512), unique=True, nullable=False, index=True)
     source: Mapped[str] = mapped_column(String(100), nullable=False)
-    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=False), nullable=True)
-    summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    published_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=False), nullable=True)
+    summary: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     # content 由正文抓取步骤补全，初次抓取时可能为空。
-    content: Mapped[str | None] = mapped_column(Text, nullable=True)
+    content: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     # title_hash 用于近似去重（同标题不同 URL 的镜像内容）。
     title_hash: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=False), default=datetime.utcnow)
@@ -43,7 +44,7 @@ class Event(Base):
     # source_count 表示该事件被多少新闻源共同印证。
     source_count: Mapped[int] = mapped_column(Integer, default=1)
     # embedding 可选，用于后续相似度检索/聚类。
-    embedding: Mapped[str | None] = mapped_column(Text, nullable=True)
+    embedding: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=False), default=datetime.utcnow)
 
     sources: Mapped[list["EventSource"]] = relationship(back_populates="event", cascade="all, delete-orphan")
