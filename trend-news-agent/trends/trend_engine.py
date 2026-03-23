@@ -1,9 +1,9 @@
-"""Trend score computation engine."""
+"""Backward-compatible wrapper for trend heat updates."""
 from __future__ import annotations
 
-from collections import defaultdict
-from datetime import date, datetime
+from trends.heat_engine import update_trends
 
+__all__ = ["update_trends"]
 from sqlalchemy import select
 
 from database.db import SessionLocal

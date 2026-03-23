@@ -43,7 +43,7 @@ class Event(Base):
     first_seen: Mapped[datetime] = mapped_column(DateTime(timezone=False), default=datetime.utcnow)
     # source_count 表示该事件被多少新闻源共同印证。
     source_count: Mapped[int] = mapped_column(Integer, default=1)
-    # embedding 可选，用于后续相似度检索/聚类。
+    event_heat: Mapped[float] = mapped_column(Float, nullable=False, default=0.0, index=True)
     embedding: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=False), default=datetime.utcnow)
 
@@ -57,8 +57,8 @@ class EventSource(Base):
     __table_args__ = (UniqueConstraint("event_id", "news_id", name="uq_event_news"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    event_id: Mapped[int] = mapped_column(ForeignKey("events.id", ondelete="CASCADE"), nullable=False)
-    news_id: Mapped[int] = mapped_column(ForeignKey("news_raw.id", ondelete="CASCADE"), nullable=False)
+    event_id: Mapped[int] = mapped_column(ForeignKey("events.id", ondelete="CASCADE"), nullable=False, index=True)
+    news_id: Mapped[int] = mapped_column(ForeignKey("news_raw.id", ondelete="CASCADE"), nullable=False, index=True)
     url: Mapped[str] = mapped_column(String(1024), nullable=False)
     source: Mapped[str] = mapped_column(String(100), nullable=False)
 
@@ -88,6 +88,8 @@ class Trend(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     category: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     trend_score: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    trend_heat: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    momentum: Mapped[float] = mapped_column(Float, nullable=False, default=1.0)
     event_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     start_date: Mapped[datetime] = mapped_column(Date, nullable=False)
     last_update: Mapped[datetime] = mapped_column(DateTime(timezone=False), default=datetime.utcnow)
