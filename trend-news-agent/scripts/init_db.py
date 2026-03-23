@@ -1,5 +1,7 @@
-"""Initialize PostgreSQL schema and seed initial keyword data."""
+"""Initialize database schema and seed initial keyword data."""
 from __future__ import annotations
+
+from sqlalchemy import inspect, text
 
 from database.db import SessionLocal, engine
 from database.models import Base, Keyword
@@ -14,8 +16,32 @@ INITIAL_KEYWORDS = [
 ]
 
 
+def apply_schema_updates() -> None:
+    """Add newly introduced columns/indexes for existing deployments."""
+    inspector = inspect(engine)
+    with engine.begin() as conn:
+        event_columns = {col["name"] for col in inspector.get_columns("events")}
+        if "event_heat" not in event_columns:
+            conn.execute(text("ALTER TABLE events ADD COLUMN event_heat FLOAT NOT NULL DEFAULT 0"))
+            conn.execute(text("CREATE INDEX ix_events_event_heat ON events (event_heat)"))
+
+        trend_columns = {col["name"] for col in inspector.get_columns("trends")}
+        if "trend_heat" not in trend_columns:
+            conn.execute(text("ALTER TABLE trends ADD COLUMN trend_heat FLOAT NOT NULL DEFAULT 0"))
+        if "momentum" not in trend_columns:
+            conn.execute(text("ALTER TABLE trends ADD COLUMN momentum FLOAT NOT NULL DEFAULT 1"))
+
+        event_source_columns = {col["name"] for col in inspector.get_columns("event_sources")}
+        event_source_indexes = {idx["name"] for idx in inspector.get_indexes("event_sources")}
+        if "event_id" in event_source_columns and "ix_event_sources_event_id" not in event_source_indexes:
+            conn.execute(text("CREATE INDEX ix_event_sources_event_id ON event_sources (event_id)"))
+        if "news_id" in event_source_columns and "ix_event_sources_news_id" not in event_source_indexes:
+            conn.execute(text("CREATE INDEX ix_event_sources_news_id ON event_sources (news_id)"))
+
+
 def main() -> None:
     Base.metadata.create_all(bind=engine)
+    apply_schema_updates()
 
     db = SessionLocal()
     try:

@@ -24,6 +24,7 @@ def get_events(limit: int = Query(50, ge=1, le=500), db: Session = Depends(get_d
             "confidence": e.confidence,
             "first_seen": e.first_seen,
             "source_count": e.source_count,
+            "event_heat": e.event_heat,
         }
         for e in events
     ]

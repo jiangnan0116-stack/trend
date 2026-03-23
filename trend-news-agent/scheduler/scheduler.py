@@ -8,7 +8,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from fetcher.rss_fetcher import fetch_rss_news
 from llm.event_extractor import extract_events_from_news
 from scraper.article_scraper import scrape_pending_articles
-from trends.trend_engine import update_trends
+from trends.heat_engine import update_event_heats, update_trends
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +30,11 @@ def extract_events() -> None:
     logger.info("Extracted %s event candidates", count)
 
 
+def run_update_event_heat() -> None:
+    count = update_event_heats()
+    logger.info("Updated %s event heat rows", count)
+
+
 def run_update_trends() -> None:
     count = update_trends()
     logger.info("Updated %s trend rows", count)
@@ -40,5 +45,6 @@ def setup_scheduler() -> None:
     scheduler.add_job(fetch_news_every_hour, "interval", minutes=60, id="fetch_news", replace_existing=True)
     scheduler.add_job(scrape_articles, "interval", minutes=60, id="scrape_articles", replace_existing=True)
     scheduler.add_job(extract_events, "interval", minutes=60, id="extract_events", replace_existing=True)
+    scheduler.add_job(run_update_event_heat, "interval", minutes=60, id="update_event_heat", replace_existing=True)
     scheduler.add_job(run_update_trends, "interval", minutes=60, id="update_trends", replace_existing=True)
     scheduler.start()

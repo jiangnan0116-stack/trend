@@ -19,6 +19,8 @@ def get_trends(db: Session = Depends(get_db)):
             "id": t.id,
             "category": t.category,
             "trend_score": t.trend_score,
+            "trend_heat": t.trend_heat,
+            "momentum": t.momentum,
             "event_count": t.event_count,
             "start_date": t.start_date,
             "last_update": t.last_update,
